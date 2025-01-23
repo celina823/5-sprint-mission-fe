@@ -1,0 +1,143 @@
+@import "../Color.css";
+
+* {
+  box-sizing: border-box;
+  font-family: "Pretendard", sans-serif;
+}
+
+.containerAll {
+  width: 100%;
+}
+
+.containerMainRegistration {
+  display: flex;
+  justify-content: center;
+}
+
+#inputArea {
+  /* margin-top: 26px;
+  margin-bottom: 162px; */
+  margin-top: min(18px, 5vw);
+  margin-right: min(16px, 5vw);
+  margin-left: min(16px, 5vw);
+  margin-bottom: min(162px, 5vw);
+  width: 1200px;
+}
+
+#titleLineProductRegistration {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+#titleRegistration {
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 32px;
+  color: #1f2937;
+}
+
+#buttonRegistration {
+  height: 42px;
+  border-radius: 8px;
+  padding: 12px 23px;
+  gap: 10px;
+  background-color: var(--Cool-Gray-400);
+  border: none;
+  /*버튼 내 글씨*/
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: 600;
+  line-height: 26px;
+  color: var(--Cool-Gray-100);
+}
+
+label {
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 26px;
+  color: #1f2937;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.inputDisplay {
+  background-color: var(--Cool-Gray-100);
+  border: none;
+  border-radius: 12px;
+  padding: 16px 24px;
+  gap: 10px;
+  height: 56px;
+  margin-top: 16px; /*인풋의 라벨과의 간격*/
+  margin-bottom: 8px; /*에러메세지와의 간격*/
+}
+
+#inputProductDescription {
+  height: 282px;
+}
+
+/* 태그칩 */
+/* 태그칩 컨테이너 */
+.tags-container {
+  display: flex; /* 가로로 배치 */
+  flex-wrap: wrap; /* 공간이 부족하면 다음 줄로 배치 */
+  gap: 12px; /* 태그 간 간격 */
+  margin-top: 8px; /* 상단 여백 */
+}
+
+/* 태그칩 */
+.tag-chip {
+  display: flex; /* 태그명과 버튼을 수평으로 배치 */
+  align-items: center; /* 세로로 중앙 정렬 */
+  background-color: var(--Cool-Gray-100);
+  height: 36px;
+  border-radius: 26px;
+  padding: 6px 34px 6px 16px; /*오른쪽에는 remove버튼크기만큼+22px*/
+  position: relative;
+  overflow: hidden; /* 아이콘이 태그 영역을 벗어나지 않도록 */
+}
+
+/* 제거 버튼 */
+.removeButton {
+  border: none;
+  background: transparent;
+  padding: 0; /* 버튼의 여백 제거 */
+  cursor: pointer;
+  position: absolute;
+  top: 50%; /* 수직 중앙 정렬 */
+  right: 6px; /* 오른쪽에 위치, 태그와 아이콘 간 여백 */
+  transform: translateY(-50%); /* 수직으로 정확히 중앙에 배치 */
+  width: 22px; /* 아이콘 크기 */
+  height: 24px; /* 아이콘 크기 */
+}
+
+/* 아이콘 */
+.RemoveIcon {
+  width: 100%; /* 버튼 크기 안에서 아이콘 비율 맞추기 */
+  height: 100%; /* 버튼 크기 안에서 아이콘 비율 맞추기 */
+  object-fit: contain;
+}
+
+/*input들 에러일 때*/
+.inputError {
+  border: 1px solid var(--error-red); /* 에러 필드의 빨간 테두리 */
+}
+
+.error-message {
+  padding-left: 16px;
+  color: red;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+input:focus {
+  outline: none; /* 포커스 시 기본 아웃라인 제거 */
+  border: 1px solid var(--Primary-100); /* 포커스 시 파란 테두리 */
+}

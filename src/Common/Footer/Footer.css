@@ -1,0 +1,66 @@
+.FooterArea {
+  width: 100%;
+  height: 160px;
+  margin: 0px;
+  padding: 32px 200px;
+  background-color: #111827;
+  color: #e5e7eb;
+  /* padding: 34px 200px;
+  gap: 10px; */
+}
+
+/*미션3에서 footer-ct와 동일*/
+.FooterContent {
+  display: flex; /* 요소들을 한 줄로 배치 */
+  justify-content: space-between; /* 요소들 사이에 일정한 간격을 설정 */
+  align-items: center; /* 요소들을 세로로 가운데 정렬 */
+  font-family: "Pretendard", sans-serif;
+  gap: 24px;
+}
+
+.foot1 {
+  flex-basis: 100%; /* 화면이 작아졌을 때 이 요소만 100% 너비를 차지하도록 설정 */
+  color: var(--Cool-Gray-400);
+}
+
+.foot2and3 {
+  display: flex;
+  text-decoration: none;
+  color: var(--Cool-Gray-200);
+  gap: 30px;
+  width: 100%;
+}
+
+.FooterSnsDisplay {
+  display: flex; /* 요소들을 한 줄로 배치 */
+  flex-wrap: nowrap; /* 요소들이 한 줄에 유지되도록 설정 */
+  justify-content: space-between; /* 요소들 사이에 일정한 간격을 설정 */
+  align-items: center; /* 요소들을 세로로 가운데 정렬 */
+  gap: 12px;
+}
+
+/*미디어 쿼리 - 반응형 디자인 설정*/
+/*Mobile*/
+@media (max-width: 743px) {
+  .FooterContent {
+    flex-wrap: wrap;
+  }
+
+  /* 화면이 작아졌을 때 foot1만 아래로 내려가도록 */
+  .foot1 {
+    order: 3; /* foot1이 다른 요소들보다 먼저 오게 설정 */
+    flex-basis: 100%; /* foot1이 한 줄을 차지하도록 설정 */
+  }
+
+  .foot2and3 {
+    order: 1;
+    justify-content: center; /* 가로 중앙 정렬 */
+    width: auto; /* 너비가 100%가 아닌 고정 너비로 설정하여 줄 바꿈을 유도 */
+  }
+
+  /* SNS 아이콘의 레이아웃을 유지 */
+  .FooterSnsDisplay {
+    order: 2;
+    justify-content: center;
+  }
+}
