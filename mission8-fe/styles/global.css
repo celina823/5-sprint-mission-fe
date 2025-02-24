@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/PretendardVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  /* 가변 폰트 지원 */
+  font-display: swap;
+}
+
+body {
+  font-family: "Pretendard", sans-serif;
+}

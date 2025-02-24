@@ -1,7 +1,14 @@
 import Image from "next/image";
 
 export default function Home() {
-  return <div>인덱스페이지</div>;
+  return (
+    <>
+      <div>이것은 인덱스페이지</div>
+      <div>테스트 가나다라마바사</div>
+      <div>테스트 가나다라마바사</div>
+      <div>테스트 가나다라마바사</div>
+    </>
+  )
 }
 
 // ✅ pages/ 폴더 (Page Router)
