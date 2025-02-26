@@ -96,7 +96,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
 
   // ✅ 수정하기 버튼 클릭 시 수정 페이지로 이동
   const handleEdit = () => {
-    router.push(`/edit-article/${article?.id}`); // 수정 페이지로 이동
+    router.push(`/write-article/${article?.id}`); // 수정 페이지로 이동
   };
 
   // ✅ 삭제하기 버튼 클릭 시 모달 열기
@@ -231,7 +231,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
   }, [article?.id]);
 
   return (
-    <div className="w-[1200px] mx-auto mt-8">
+    <div className="w-[1200px] mx-auto mt-[34px]">
       <div>
         <div className="flex justify-between"> {/* 제목과 케밥 아이콘을 배치하기 위한 div*/}
           <h1 className="text-2xl font-semibold">{article.title}</h1>
@@ -287,7 +287,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
             value={newComment} // ✅ 입력 상태 연결
             onChange={(e) => setNewComment(e.target.value)} // ✅ 입력 값 업데이트
             placeholder="댓글을 입력해주세요"
-            className="bg-gray_100 h-[104px] w-[100%] p-2 rounded-[12px] "
+            className="bg-gray_100 h-[104px] w-full p-2 rounded-[12px] "
           />
           <button onClick={handleCommentSubmit} className={` text-white px-[23px] py-[12px] rounded-md ${newComment.trim() ? "bg-Primary_100" : "bg-gray-400 cursor-not-allowed"
             }`}>
