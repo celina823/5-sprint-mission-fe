@@ -48,7 +48,6 @@ const WriteOrEditArticle = ({ article }: EditArticleProps) => {
   // 게시글 작성 또는 수정 처리 함수
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("handleSubmit 함수 실행됨");
 
     if (!title || !content) {
       alert("제목과 내용을 입력해주세요.");
@@ -83,9 +82,6 @@ const WriteOrEditArticle = ({ article }: EditArticleProps) => {
         });
       }
 
-      console.log("서버 응답 상태 코드:", res.status);
-      console.log("서버 응답 헤더:", res.headers);
-
       if (!res.ok) {
         throw new Error(`서버 응답 오류: ${res.status}`);
       }
@@ -94,7 +90,6 @@ const WriteOrEditArticle = ({ article }: EditArticleProps) => {
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         newArticle = await res.json();
-        console.log("새 게시글 응답:", newArticle);
       } else {
         console.warn("JSON 응답이 아님:", await res.text());
         newArticle = null;
