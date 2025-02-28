@@ -1,19 +1,25 @@
 //검색목록 ssr로 구현
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import CustomDropdown from "@/global/components/CustomDropdown";
 
+
 // SSR 방식으로 서버에서 데이터를 가져옵니다.
 export const getServerSideProps = async () => {
 
   try {
+    // 페이지네이션을 위한 기본값
+    const page = 1;
+    const limit = 4;
     // API 호출해서 데이터 가져오기
     const res = await fetch('https://five-sprint-mission-be-mission7-kqwz.onrender.com/article');
     const data = await res.json();
     // data에서 articles 배열만 추출
     const articles = Array.isArray(data.articles) ? data.articles : [];
+    const totalArticles = data.totalArticles;
+    const totalPages = data.totalPages;
 
     // 좋아요(Heart) 순으로 정렬 후 상위 3개 추출
     const topArticles = [...articles]
@@ -30,6 +36,8 @@ export const getServerSideProps = async () => {
       props: {
         articles: formattedArticles,
         topArticles,
+        totalArticles,
+        totalPages,
       }
     };
   } catch (error) {
@@ -38,6 +46,8 @@ export const getServerSideProps = async () => {
       props: {
         articles: [],
         topArticles: [],
+        totalArticles: 0,
+        totalPages: 0,
       }
     };
   }
@@ -55,9 +65,11 @@ interface Article {
 interface FreeboardProps {
   articles: Article[]; //그냥 게시글
   topArticles: Article[]; //베스트 게시글
+  totalArticles: number;
+  totalPages: number;
 }
 
-export default function Freeboard({ articles, topArticles }: FreeboardProps) {
+export default function Freeboard({ articles, topArticles, totalArticles, totalPages: initialTotalPages, }: FreeboardProps) {
 
   if (!Array.isArray(articles)) {
     return <div>데이터 오류: 게시글을 가져오는 데 문제가 발생했습니다.</div>;
@@ -70,8 +82,16 @@ export default function Freeboard({ articles, topArticles }: FreeboardProps) {
   const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태 
   const [visibleTopArticles, setVisibleTopArticles] = useState<Article[]>([]);
 
+  // 스크롤 구현하는 데 필요
+  const [fetchedArticles, setFetchedArticles] = useState<Article[]>(articles); // SSR에서 가져온 데이터
+  const [limit, setLimit] = useState(4); // 기본값은 데스크탑(4)
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const observerRef = useRef<HTMLDivElement | null>(null);
+  const [totalPages, setTotalPagesState] = useState(initialTotalPages); // 초기 totalPages를 서버에서 받은 값으로 설정
+
   useEffect(() => {
-    setIsClient(true);
+    setIsClient(true); // 클라이언트 렌더링 시작
   }, []);
 
   // 화면 너비에 따른 베스트 게시글 수 조정
@@ -91,10 +111,8 @@ export default function Freeboard({ articles, topArticles }: FreeboardProps) {
 
     // 처음에 화면 크기 조정
     handleResize();
-
     // 화면 크기 변경시마다 실행
     window.addEventListener("resize", handleResize);
-
     // cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -129,14 +147,89 @@ export default function Freeboard({ articles, topArticles }: FreeboardProps) {
     return image && image.trim() !== "" ? image : '/assets/img_default.png';
   }
 
+  // 화면 크기에 따른 limit 값 변경
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setLimit(3); // 모바일
+      } else if (window.innerWidth < 1024) {
+        setLimit(6); // 태블릿
+      } else {
+        setLimit(4); // 데스크탑
+      }
+    };
+
+    // 초기 크기 설정
+    handleResize();
+
+    // 창 크기 변경 시 실행
+    window.addEventListener("resize", handleResize);
+
+    // cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // 무한 스크롤 구현
+  const loadMoreArticles = async () => {
+    console.log('Load More Articles Triggered', { page, totalPages, loading }); // 상태 값 확인
+    if (page < totalPages && !loading) {
+      setLoading(true);
+      const nextPage = page + 1;
+
+      try {
+        const res = await fetch(`/article?page=${nextPage}&limit=${limit}`);
+        const data = await res.json();
+
+        if (data && data.articles) {
+          setFetchedArticles((prev) => [...prev, ...data.articles]);
+          setPage(nextPage);
+          setTotalPagesState(data.totalPages);
+        }
+      } catch (error) {
+        console.error('Error loading more articles:', error);
+      } finally {
+        setLoading(false); // 로딩 상태 종료
+      }
+    }
+  };
+
+  // IntersectionObserver를 사용하여 스크롤 이벤트를 감지
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        console.log('IntersectionObserver Triggered', entry.isIntersecting); // Observer가 작동할 때마다 확인
+        if (entry.isIntersecting && !loading) { // 로딩 중일 때는 추가 요청을 하지 않음
+          loadMoreArticles();
+        }
+      },
+      { rootMargin: "100px" }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observer.unobserve(observerRef.current);
+      }
+    };
+  }, [loading, page]);
+
   if (!isClient) {
     return null; // Prevent SSR mismatch on the first render
   }
 
-  if (!articles || articles.length === 0) {
+  if (!fetchedArticles || fetchedArticles.length === 0) {
     return <div>로딩 중...</div>;
   }
-  console.log("확인용", articles)
+
+
+  console.log("articles 확인용", articles)
+  console.log("totalArticles 확인용", totalArticles)
+  console.log("totalPages 확인용", totalPages)
 
   return (
     <div className=" lg:w-[1200px] md:w-[696px] sm:w-[343px] w-[343px] mx-auto mt-6">
