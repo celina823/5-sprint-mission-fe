@@ -123,6 +123,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
   };
 
   // 날짜 표기방식 변경
+  // 1. ex) 2025. 03. 03
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -130,7 +131,26 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
       day: "2-digit",
     }).replace(/. /g, '.').slice(0, -1); // "2025.02.25" 형식으로 변환
   };
+  // 1. ex) 17시간 전
+  const formatDateV2 = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime(); // 밀리초 단위 차이
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHours = Math.floor(diffMin / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
+    if (diffDays > 0) {
+      return `${diffDays}일 전`;
+    } else if (diffHours > 0) {
+      return `${diffHours}시간 전`;
+    } else if (diffMin > 0) {
+      return `${diffMin}분 전`;
+    } else {
+      return "방금 전";
+    }
+  };
   ///댓글 CRUD
 
   const toggleDropdownComment = (commentId: string) => {
@@ -371,7 +391,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                           />
                           <div className="flex flex-col gap-[4px]">
                             <div className="text-gray_600 font-normal text-[12px] leading-[18px]">{comment.userId}</div>
-                            <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDate(comment.createdAt)}</div>
+                            <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDateV2(comment.createdAt)}</div>
                           </div>
                         </div>
                         {/* 🔹 취소 및 수정 완료 버튼 */}
@@ -403,7 +423,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                       />
                       <div className="flex flex-col gap-[4px]">
                         <div className="text-gray_600 font-normal text-[12px] leading-[18px]">{comment.userId}</div>
-                        <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDate(comment.createdAt)}</div>
+                        <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDateV2(comment.createdAt)}</div>
                       </div>
                     </div>
                   )}
