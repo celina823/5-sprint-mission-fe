@@ -122,6 +122,15 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
     setIsModalOpen(false); // 모달 닫기
   };
 
+  // 날짜 표기방식 변경
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).replace(/. /g, '.').slice(0, -1); // "2025.02.25" 형식으로 변환
+  };
+
   ///댓글 CRUD
 
   const toggleDropdownComment = (commentId: string) => {
@@ -231,78 +240,88 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
   }, [article?.id]);
 
   return (
-    <div className="w-[1200px] mx-auto mt-[34px]">
+    <div className="w-[343px] lg:w-[1200px] md:w-[696px] sm:w-[343px] mx-auto mt-[24px] lg:mt-[32x] md:mt-[24px] sm:mt-[24px] mb-[234px] lg:mb-[463px] md:mb-[561px] sm:mb-[234px]">
       <div>
-        <div className="flex justify-between"> {/* 제목과 케밥 아이콘을 배치하기 위한 div*/}
-          <h1 className="text-2xl font-semibold">{article.title}</h1>
-          <div className="ml-2 relative">
-            <Image
-              src="/assets/ic_kebab.png" // ✅ ic_kebab 아이콘 추가
-              alt="Kebab Menu"
-              width={24}
-              height={24}
-              onClick={toggleDropdownArticle} // ✅ 아이콘 클릭 시 드롭다운 메뉴 토글
-            />
-            {isArticleDropdownOpen && ( // ✅ 드롭다운 메뉴 표시
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border">
-                <button
-                  className="w-full text-left px-4 py-2 text-sm"
-                  onClick={handleEdit} // ✅ 수정하기 클릭 시 수정 페이지로 이동
-                >
-                  수정하기
-                </button>
-                <button
-                  className="w-full text-left px-4 py-2 text-sm"
-                  onClick={handleDelete} // ✅ 삭제하기 클릭 시 삭제 모달 열기
-                >
-                  삭제하기
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="flex "> {/*작성자,작성일과 좋아요 버튼을 배치하기 위한 div*/}
-          <div className="flex items-center justify-center">작성자: {article.nickname}</div>
-          <div className="flex items-center justify-center">작성일: {article.createdAt}</div>
-          <div className="flex items-center justify-center rounded-[35px] border border-gray_200 px-[12px] py-[4px]">
-            <p className="flex text-[16px]">
+        <div className="mb-[24px] border-b border-b-gray_200"> {/* 제목부분 모두 합친 div*/}
+          <div className="flex justify-between"> {/* 제목과 케밥 아이콘을 배치하기 위한 div*/}
+            <h1 className="text-gray_800 font-bold text-[20px] leading-[32px]">{article.title}</h1>
+            <div className="ml-2 relative">
               <Image
-                src="/assets/ic_heart.png"
-                alt="Heart Icon"
+                src="/assets/ic_kebab.png" // ✅ ic_kebab 아이콘 추가
+                alt="Kebab Menu"
                 width={24}
                 height={24}
+                onClick={toggleDropdownArticle} // ✅ 아이콘 클릭 시 드롭다운 메뉴 토글
               />
-              {article.Heart}</p>
+              {isArticleDropdownOpen && ( // ✅ 드롭다운 메뉴 표시
+                <div className="absolute right-0 mt-2 w-[139px] bg-white rounded-lg border">
+                  <button
+                    className="w-full text-left px-4 py-2 text-center text-sm"
+                    onClick={handleEdit} // ✅ 수정하기 클릭 시 수정 페이지로 이동
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-2 text-center text-sm"
+                    onClick={handleDelete} // ✅ 삭제하기 클릭 시 삭제 모달 열기
+                  >
+                    삭제하기
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-
+          <div className="flex gap-[32px] my-[16px]"> {/*작성정보와 좋아요 버튼 배치하는  div*/}
+            <div className="text-gray_600 font-medium text-[14px] leading-[24px] flex items-center justify-center gap-[16px]"> {/*작성자,작성일을 묶는  div*/}
+              <Image
+                src="/assets/ic_profile.png"
+                alt="Profile Image Icon"
+                width={40}
+                height={40}
+              />{article.nickname}
+              <div className="text-gray_400 font-normal text-[14px] leading-[24px] flex items-center justify-center">{formatDate(article.createdAt)}</div>
+            </div>
+            <div className="flex items-center justify-center rounded-[35px] border border-gray_200 px-[12px] py-[4px]">
+              <p className="text-gray_500 font-medium text-[16px] leading-[26px] flex items-center justify-center gap-[10px]">
+                <Image
+                  src="/assets/ic_heart.png"
+                  alt="Heart Icon"
+                  width={32}
+                  height={32}
+                />
+                {article.Heart}</p>
+            </div>
+          </div>
         </div>
-        <div className="mt-4">{article.content}</div>
+        <div className="text-gray_800 font-normal text-[18px] leading-[26px]">{article.content}</div>
         {/* <div>첨부이미지</div>
         <img src={getImageUrl(article.image)} alt={article.title} className="h-[150px] w-[150px] rounded-md mt-4" /> */}
 
         {/* 댓글달기 */}
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold">댓글 달기</h3>
+        <div className="mt-[32px]">
+          <h3 className="text-gray_900 font-semibold text-[16px] leading-[26px] mb-[9px]">댓글 달기</h3>
           <input
             value={newComment} // ✅ 입력 상태 연결
             onChange={(e) => setNewComment(e.target.value)} // ✅ 입력 값 업데이트
-            placeholder="댓글을 입력해주세요"
-            className="bg-gray_100 h-[104px] w-full p-2 rounded-[12px] "
+            placeholder="댓글을 입력해주세요."
+            className="bg-gray_100 text-gray_400 font-normal text-[16px] leading-[26px] h-[104px] w-full px-[24px] py-[16px] rounded-[12px] gap-[10px]"
           />
-          <button onClick={handleCommentSubmit} className={` text-white px-[23px] py-[12px] rounded-md ${newComment.trim() ? "bg-Primary_100" : "bg-gray-400 cursor-not-allowed"
-            }`}>
-            등록
-          </button>
+          <div className="flex items-center justify-end">
+            <button onClick={handleCommentSubmit} className={` flex items-center justify-center text-gray_100 px-[23px] py-[12px] rounded-[8px] h-[42px] mt-[16px] ${newComment.trim() ? "bg-Primary_100" : "bg-gray_400 cursor-not-allowed"
+              }`}>
+              등록
+            </button>
+          </div>
         </div>
 
         {/* 댓글 */}
-        <div className="mt-6">
-          <div>
+        <div className="mt-[24px] lg:mt-[40px] md:mt-[32px] sm:mt-[24px] mb-[40px] lg:mb-[48px] md:mb-[56px] sm:mb-[40px]">
+          <div >
             {commentList?.length > 0 ? (
               commentList.map((comment, index) => (
-                <div key={index} className="mt-6 bg-[#fcfcfc] border-b border-gray_200">
+                <div key={index} className="bg-[#fcfcfc] border-b border-gray_200 pb-[12px] mb-[24px]">
                   <div className="flex justify-between"> {/* 댓글내용과 케밥 아이콘을 배치하기 위한 div*/}
-                    <div className="text-sm">{comment.content}</div>
+                    <div className="text-gray_800 font-normal text-[14px] leading-[24px] mb-[24px]">{comment.content}</div>
                     <div className="ml-2 relative">
                       <Image
                         src="/assets/ic_kebab.png" // ✅ ic_kebab 아이콘 추가
@@ -312,15 +331,15 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                         onClick={() => toggleDropdownComment(comment.id)}  // ✅ 아이콘 클릭 시 드롭다운 메뉴 토글
                       />
                       {dropdownOpenCommentId === comment.id && ( // ✅ 드롭다운 메뉴 표시
-                        <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border">
+                        <div className="absolute right-0 mt-2 w-[139px] bg-white rounded-lg border">
                           <button
-                            className="w-full text-left px-4 py-2 text-sm"
+                            className="w-full text-left px-4 py-2 text-center text-sm"
                             onClick={() => startEditingComment(comment)} // 수정하기 클릭 시 수정 상태로 전환
                           >
                             수정하기
                           </button>
                           <button
-                            className="w-full text-left px-4 py-2 text-sm"
+                            className="w-full text-left px-4 py-2 text-center text-sm"
                             onClick={() => deleteComment(comment.id)} // 댓글 삭제하기
                           >
                             삭제하기
@@ -333,66 +352,93 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                   {/* 댓글 수정 입력창이 표시될 경우 */}
                   {editCommentId === comment.id ? (
                     <div className="mt-2">
+                      {/* 수정 입력창 */}
+                      {/* 🔹 수정 입력 필드 */}
                       <input
                         type="text"
-                        value={editedComment} // 수정된 내용 연결
-                        onChange={(e) => setEditedComment(e.target.value)} // 입력값 업데이트
-                        className="w-full p-2 rounded-md border"
+                        value={editedComment}
+                        onChange={(e) => setEditedComment(e.target.value)}
+                        className="w-full p-2 rounded-[12px] bg-gray_100"
                       />
-                      <div className="mt-2 flex space-x-4">
-                        <button
-                          onClick={() => saveEditedComment(comment.id)} // 수정 확인 버튼
-                          className="px-4 py-2 bg-blue-500 text-white rounded"
-                        >
-                          확인
-                        </button>
-                        <button
-                          onClick={cancelEditingComment} // 수정 취소 버튼
-                          className="px-4 py-2 bg-gray-300 text-black rounded"
-                        >
-                          취소
-                        </button>
+                      <div className="flex items-center justify-between mb-2">
+                        {/* 🔹 작성자 및 작성 시간 표시 */}
+                        <div className="flex items-center gap-[8px]">
+                          <Image
+                            src="/assets/ic_profile.png"
+                            alt="Profile Image Icon"
+                            width={32}
+                            height={32}
+                          />
+                          <div className="flex flex-col gap-[4px]">
+                            <div className="text-gray_600 font-normal text-[12px] leading-[18px]">{comment.userId}</div>
+                            <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDate(comment.createdAt)}</div>
+                          </div>
+                        </div>
+                        {/* 🔹 취소 및 수정 완료 버튼 */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={cancelEditingComment}
+                            className="px-4 py-2 bg-gray-300 text-black rounded"
+                          >
+                            취소
+                          </button>
+                          <button
+                            onClick={() => saveEditedComment(comment.id)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded"
+                          >
+                            수정 완료
+                          </button>
+                        </div>
                       </div>
+
                     </div>
                   ) : (
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-[8px]">
+                      {/* 수정되지 않은 댓글 내용 */}
                       <Image
                         src="/assets/ic_profile.png"
                         alt="Profile Image Icon"
                         width={32}
                         height={32}
                       />
-                      <div className="font-normal text-xs leading-5 text-gray_600">{comment.userId}</div>
-                      <div className="font-normal text-xs leading-5 text-gray_400">{comment.createdAt}</div>
+                      <div className="flex flex-col gap-[4px]">
+                        <div className="text-gray_600 font-normal text-[12px] leading-[18px]">{comment.userId}</div>
+                        <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDate(comment.createdAt)}</div>
+                        <div className="text-gray_800 font-normal text-[14px] leading-[24px]">{comment.content}</div>
+                      </div>
                     </div>
                   )}
+
                 </div>
               ))
             ) : (
-              <div className="flex flex-col items-center mt-4">
+              <div className="flex flex-col items-center gap-[16px]">
                 <Image
                   src="/assets/Img_reply_empty.png"
                   alt="댓글 없음"
                   width={140}
                   height={140}
                 />
-                <p className="text-gray-400 mt-2">아직 댓글이 없어요, 지금 댓글을 달아보세요!</p>
+                <p className="text-center text-gray-400 font-normal text-[16px] leading-[26px]">아직 댓글이 없어요, <br /> 지금 댓글을 달아보세요!</p>
               </div>
             )}
           </div>
         </div>
-        <button className="flex bg-Primary_100 text-white rounded-[40px] px-[64px] py-[12px]">목록으로 돌아가기<Image
-          src="/assets/ic_back.png" // public 폴더 내의 이미지 경로
-          alt="Back Icon"
-          width={24}
-          height={24}
-        /></button>
+        <div className="flex items-center justify-center">
+          <button className="flex items-center justify-center bg-Primary_100 text-gray_100 font-semibold text-[18px] leading-[26px] rounded-[40px] px-[64px] py-[12px] w-[240px] h-[48px] gap-[8px] whitespace-nowrap">목록으로 돌아가기
+            <Image
+              src="/assets/ic_back.png" // public 폴더 내의 이미지 경로
+              alt="Back Icon"
+              width={24}
+              height={24}
+            /></button>
+        </div>
         {/* 삭제 확인 모달창 */}
         {isModalOpen && ( // ✅ 삭제 모달 표시
           <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg text-center">
               <p>정말 삭제하시겠습니까?</p>
-              <div className="mt-4 flex justify-center space-x-4">
+              <div className="flex justify-center space-x-4">
                 <button
                   className="px-4 py-2 bg-red-500 text-white rounded"
                   onClick={confirmDelete} // ✅ 삭제 버튼 클릭 시 게시글 삭제

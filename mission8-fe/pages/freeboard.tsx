@@ -248,7 +248,7 @@ export default function Freeboard({ articles, topArticles, totalArticles, totalP
                   height={30}
                 />
                 <div className="flex justify-between items-center"> {/*게시글 제목과 이미지를 배치하기 위한 div*/}
-                  <p className="font-semibold text-[20px] leading-[32px] w-[calc(100%-120px)] line-clamp-2">
+                  <p className="text-gray_800 font-semibold text-[20px] leading-[32px] w-[calc(100%-120px)] line-clamp-2">
                     {article.title}
                   </p> {/* 제목 (최대 2줄 표시, 초과 시 "..." 처리) */}
                   <img
@@ -305,7 +305,7 @@ export default function Freeboard({ articles, topArticles, totalArticles, totalP
           <Link key={article.id} href={`/article/${article.id}`} passHref>
             <div className="bg-[#fcfcfc] border-b border-gray_200 mb-[24px]">
               <div className="flex justify-between items-start"> {/*게시글 제목과 이미지를 배치하기 위한 div*/}
-                <p className="font-semibold text-[20px] leading-[32px]">{article.title}</p>
+                <p className="text-gray_800 font-semibold text-[20px] leading-[32px]">{article.title}</p>
                 <img src={getImageUrl(article.image)} alt={article.title} className="h-[72px] w-[72px] rounded-[8px] border border-gray_100" />
               </div>
               <div className="flex justify-between items-center mt-[16px] mb-[24px]"> {/*게시글 닉네임,작성일, 좋아요를 배치하기 위한 div*/}
