@@ -34,16 +34,8 @@ const WriteOrEditArticle = ({ article }: EditArticleProps) => {
   const router = useRouter();
   const [title, setTitle] = useState<string>(article?.title || "");
   const [content, setContent] = useState<string>(article?.content || "");
-  const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
-  // 제목과 내용이 입력되었는지 확인
-  useEffect(() => {
-    if (title && content) {
-      setIsFormValid(true);
-    } else {
-      setIsFormValid(false);
-    }
-  }, [title, content]);
+  const isDisabled = !title.trim() || !content.trim(); // 둘 중 하나라도 비어 있으면 비활성화
 
   // 게시글 작성 또는 수정 처리 함수
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,34 +109,37 @@ const WriteOrEditArticle = ({ article }: EditArticleProps) => {
 
 
   return (
-    <div className="w-[1200px] mx-auto mt-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">{article ? "게시글 수정" : "게시글 쓰기ㄱㄱ"}</h1>
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className={`px-6 py-3 rounded-md text-white ${isFormValid ? "bg-Primary_100" : "bg-gray_400"}`}
-          disabled={!isFormValid}
-        >
-          {article ? "수정 완료" : "등록"}
-        </button>
-      </div>
-      <form onSubmit={handleSubmit} className="mt-6">
+    <div className="w-[343px] lg:w-[1200px] md:w-[696px] sm:w-[343px] mx-auto mt-[16px] lg:mt-[24x] md:mt-[16px] sm:mt-[16px] mb-[965px] lg:mb-[794px] md:mb-[879px] sm:mb-[965px]">
+      <form onSubmit={handleSubmit}>
+        <div className="flex justify-between items-center mb-[24px] lg:mb-[32px] md:mb-[32px] sm:mb-[24px] ">
+          <h1 className="text-gray_800 font-bold text-[20px] leading-[32px]">상품 등록하기</h1>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className={`flex justify-center items-center h-[42px] px-[23px] py-[12px] rounded-[8px] text-gray_100
+              ${isDisabled ? "bg-gray_400 cursor-not-allowed" : "bg-Primary_100"}`}
+            disabled={isDisabled}
+          >
+            등록
+          </button>
+        </div>
         <div>
+          <div className="text-gray_800 font-bold text-[18px] leading-[26px] mb-[12px]">*제목</div>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="제목을 입력하세요"
+            className="w-full h-[56px] rounded-[12px] px-[24px] py-[16px] bg-gray_100 text-gray_600 font-normal text-[16px] leading-[26px]"
+            placeholder="제목을 입력해주세요"
           />
         </div>
-        <div className="mt-4">
+        <div className="mt-[16px] lg:mt-[24px] md:mt-[24px] sm:mt-[16px]">
+          <div className="text-gray_800 font-bold text-[18px] leading-[26px] mb-[12px]">*내용</div>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="내용을 입력하세요"
+            className="w-full h-[282px] rounded-[12px] px-[24px] py-[16px] bg-gray_100 text-gray_600 font-normal text-[16px] leading-[26px]"
+            placeholder="내용을 입력해주세요"
           />
         </div>
       </form>
