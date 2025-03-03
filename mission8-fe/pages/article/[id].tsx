@@ -307,7 +307,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
             className="bg-gray_100 text-gray_400 font-normal text-[16px] leading-[26px] h-[104px] w-full px-[24px] py-[16px] rounded-[12px] gap-[10px]"
           />
           <div className="flex items-center justify-end">
-            <button onClick={handleCommentSubmit} className={` flex items-center justify-center text-gray_100 px-[23px] py-[12px] rounded-[8px] h-[42px] mt-[16px] ${newComment.trim() ? "bg-Primary_100" : "bg-gray_400 cursor-not-allowed"
+            <button onClick={handleCommentSubmit} className={` flex items-center justify-center text-gray_100 font-semibold text-[16px] leading-[26px] px-[23px] py-[12px] rounded-[8px] h-[42px] mt-[16px] ${newComment.trim() ? "bg-Primary_100" : "bg-gray_400 cursor-not-allowed"
               }`}>
               등록
             </button>
@@ -351,14 +351,14 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
 
                   {/* 댓글 수정 입력창이 표시될 경우 */}
                   {editCommentId === comment.id ? (
-                    <div className="mt-2">
+                    <div >
                       {/* 수정 입력창 */}
                       {/* 🔹 수정 입력 필드 */}
                       <input
                         type="text"
                         value={editedComment}
                         onChange={(e) => setEditedComment(e.target.value)}
-                        className="w-full p-2 rounded-[12px] bg-gray_100"
+                        className="text-gray_800 font-normal text-[14px] leading-[24px] w-[343px] lg:w-[1200px] md:w-[696px] sm:w-[343px] px-[24px] py-[16px] rounded-[12px] gap-[10px] bg-gray_100 mb-[12px]"
                       />
                       <div className="flex items-center justify-between mb-2">
                         {/* 🔹 작성자 및 작성 시간 표시 */}
@@ -378,13 +378,13 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                         <div className="flex gap-2">
                           <button
                             onClick={cancelEditingComment}
-                            className="px-4 py-2 bg-gray-300 text-black rounded"
+                            className="flex items-center justify-center text-gray_500 font-semibold text-[16px] leading-[26px] h-[42px] rounded-[8px] px-[23px] py-[12px]"
                           >
                             취소
                           </button>
                           <button
                             onClick={() => saveEditedComment(comment.id)}
-                            className="px-4 py-2 bg-blue-500 text-white rounded"
+                            className="flex items-center justify-center text-gray_100 font-semibold text-[16px] leading-[26px] bg-Primary_100 h-[42px] rounded-[8px] px-[23px] py-[12px]"
                           >
                             수정 완료
                           </button>
@@ -404,7 +404,6 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                       <div className="flex flex-col gap-[4px]">
                         <div className="text-gray_600 font-normal text-[12px] leading-[18px]">{comment.userId}</div>
                         <div className="text-gray_400 font-normal text-[12px] leading-[18px]">{formatDate(comment.createdAt)}</div>
-                        <div className="text-gray_800 font-normal text-[14px] leading-[24px]">{comment.content}</div>
                       </div>
                     </div>
                   )}
