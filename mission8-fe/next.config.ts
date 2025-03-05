@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  images: {
+    domains: ['cdn.pixabay.com', 'encrypted-tbn3.gstatic.com'], // 허용할 도메인 추가
+  },
 };
 
 export default nextConfig;

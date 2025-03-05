@@ -21,36 +21,28 @@ interface Comment {
 }
 
 interface ArticleDetailProps {
-  article: Article | null; //게시물 없을 경우 null 처리
+  article: Article | null; // 게시물 없을 경우 null 처리
   comments: Comment[];
 }
 
-// 🔹 getServerSideProps에서 article이 undefined일 경우 null을 반환하도록 수정
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.params as { id: string }; // URL 파라미터로 게시글 ID 받기
+  const { id } = context.params as { id: string };
 
   try {
-    // 게시글 데이터 가져오기
     const articleRes = await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/article/${id}`);
     const articleData = await articleRes.json();
-    console.log("게시글 확인용:", articleData);
 
-    // 게시글이 없다면 404 페이지로 리디렉션
     if (!articleData || articleRes.status !== 200) {
-      return { notFound: true }; // 게시글이 없으면 404 페이지 리디렉션
+      return { props: { article: null, comments: [] } };
     }
 
-    // 댓글 데이터 가져오기
     const commentRes = await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/comment/${id}`);
     const commentData = await commentRes.json();
-    console.log("코멘트 확인용:", commentData);
-
-    // 댓글 데이터의 실제 배열을 반환
     const comments = Array.isArray(commentData.comments) ? commentData.comments : [];
 
     return {
       props: {
-        article: articleData ?? null, // 게시글 데이터
+        article: articleData ?? null,
         comments,
       },
     };
@@ -58,84 +50,77 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.error("🚨 Error fetching article or comments:", error);
     return {
       props: {
-        article: null, // 에러 발생 시에도 null 반환
+        article: null,
         comments: [],
       },
     };
   }
 };
 
-// 이미지 URL이 없을 경우 기본 이미지 설정
-const getImageUrl = (image: string | null) => {
-  return image && image.trim() !== "" ? image : '/assets/img_default.png';
-}
-
-//////////////////////////////////////////////////
-
 export default function ArticleDetail({ article, comments }: ArticleDetailProps) {
-  if (!article) {
-    return <div>게시글을 찾을 수 없습니다.</div>;
-  }
-
-  const [isArticleDropdownOpen, setIsArticleDropdownOpen] = useState(false); // ✅ 게시글 드롭다운 상태 관리
-  const [isModalOpen, setIsModalOpen] = useState(false); // ✅ 삭제 모달 상태 관리
-  const [newComment, setNewComment] = useState(""); // ✅ 새로운 댓글을 입력하는 input의 값을 관리
-  const [commentList, setCommentList] = useState<Comment[]>(comments); // ✅ 댓글 목록을 상태로 관리
-  const [dropdownOpenCommentId, setDropdownOpenCommentId] = useState<string | null>(null); // 특정 댓글 드롭다운 상태 관리
-  const [editCommentId, setEditCommentId] = useState<string | null>(null); // 수정 중인 댓글 ID 저장
-  const [editedComment, setEditedComment] = useState(""); // 수정 중인 댓글 내용
-
+  const [isArticleDropdownOpen, setIsArticleDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [commentList, setCommentList] = useState<Comment[]>(comments);
+  const [dropdownOpenCommentId, setDropdownOpenCommentId] = useState<string | null>(null);
+  const [editCommentId, setEditCommentId] = useState<string | null>(null);
+  const [editedComment, setEditedComment] = useState("");
   const router = useRouter();
 
-  ///게시글 CRUD 
+  // Handles the article dropdown toggle
+  const toggleDropdownArticle = () => setIsArticleDropdownOpen(prev => !prev);
 
-  // ✅ 게시글 드롭다운 메뉴 토글 함수
-  const toggleDropdownArticle = () => {
-    setIsArticleDropdownOpen((prev) => !prev);
-  };
+  // Navigates to the edit page
+  const handleEdit = () => router.push(`/write-article/${article?.id}`);
 
-  // ✅ 수정하기 버튼 클릭 시 수정 페이지로 이동
-  const handleEdit = () => {
-    router.push(`/write-article/${article?.id}`); // 수정 페이지로 이동
-  };
-
-  // ✅ 삭제하기 버튼 클릭 시 모달 열기
+  // Opens the modal for deletion
   const handleDelete = () => {
-    setIsModalOpen(true); // 삭제 모달 열기
-    setIsArticleDropdownOpen(false); // 드롭다운 메뉴 닫기
+    setIsModalOpen(true);
+    setIsArticleDropdownOpen(false);
   };
 
-  // ✅ 삭제 확인 함수
+  // Confirms the deletion
   const confirmDelete = async () => {
     try {
-      await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/article/${article?.id}`, {
-        method: 'DELETE', // DELETE 요청으로 게시글 삭제
-      });
-      router.push('/freeboard'); // 삭제 후 자유게시판 페이지로 리디렉션
+      await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/article/${article?.id}`, { method: 'DELETE' });
+      router.push('/freeboard');
     } catch (error) {
       console.error('삭제 실패:', error);
     }
   };
 
-  // ✅ 삭제 취소 함수
-  const cancelDelete = () => {
-    setIsModalOpen(false); // 모달 닫기
-  };
+  // Cancels the deletion
+  const cancelDelete = () => setIsModalOpen(false);
 
-  // 날짜 표기방식 변경
-  // 1. ex) 2025. 03. 03
+  // Fetch comments when article.id changes
+  useEffect(() => {
+    if (article?.id) {
+      const fetchComments = async () => {
+        try {
+          const response = await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/comment/${article?.id}`);
+          const data = await response.json();
+          setCommentList(Array.isArray(data.comments) ? data.comments : []);
+        } catch (error) {
+          console.error("댓글 목록을 불러오는 중 오류 발생:", error);
+        }
+      };
+      fetchComments();
+    }
+  }, [article?.id]);
+
+  // Date formatting functions
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    }).replace(/. /g, '.').slice(0, -1); // "2025.02.25" 형식으로 변환
+    }).replace(/. /g, '.').slice(0, -1);
   };
-  // 1. ex) 17시간 전
+
   const formatDateV2 = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime(); // 밀리초 단위 차이
+    const diffMs = now.getTime() - date.getTime();
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHours = Math.floor(diffMin / 60);
@@ -151,21 +136,9 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
       return "방금 전";
     }
   };
-  ///댓글 CRUD
 
   const toggleDropdownComment = (commentId: string) => {
     setDropdownOpenCommentId((prev) => (prev === commentId ? null : commentId));
-  };
-
-  // ✅ 댓글 목록을 다시 불러오는 함수
-  const fetchComments = async () => {
-    try {
-      const response = await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/comment/${article?.id}`);
-      const data = await response.json();
-      setCommentList(Array.isArray(data.comments) ? data.comments : []); // ✅ 최신 댓글 목록으로 업데이트
-    } catch (error) {
-      console.error("댓글 목록을 불러오는 중 오류 발생:", error);
-    }
   };
 
   // ✅ 댓글 등록 함수
@@ -175,7 +148,7 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
     const commentData = {
       userId: "비로그인판다", // ✅ 아직 로그인 기능이 없으므로 고정된 userId로
       content: newComment,
-      articleId: article.id,
+      articleId: article?.id,
       createdAt: new Date().toISOString(),
     };
 
@@ -212,6 +185,12 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
     setDropdownOpenCommentId(null);
   };
 
+  // 댓글 수정 취소
+  const cancelEditingComment = () => {
+    setEditCommentId(null); // 수정 중인 댓글 ID 초기화
+    setEditedComment(""); // 수정된 내용 초기화
+  };
+
   // 댓글 수정 저장
   const saveEditedComment = async (commentId: string) => {
     try {
@@ -234,11 +213,6 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
     }
   };
 
-  // 댓글 수정 취소
-  const cancelEditingComment = () => {
-    setEditCommentId(null); // 수정 중인 댓글 ID 초기화
-    setEditedComment(""); // 수정된 내용 초기화
-  };
 
   // 댓글 삭제
   const deleteComment = async (commentId: string) => {
@@ -252,19 +226,13 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
     }
   };
 
-  // 댓글 목록을 useEffect로 자동 업데이트
-  useEffect(() => {
-    if (article?.id) {
-      fetchComments();
-    }
-  }, [article?.id]);
 
   return (
     <div className="w-[343px] lg:w-[1200px] md:w-[696px] sm:w-[343px] mx-auto mt-[24px] lg:mt-[32x] md:mt-[24px] sm:mt-[24px] mb-[234px] lg:mb-[463px] md:mb-[561px] sm:mb-[234px]">
       <div>
         <div className="mb-[24px] border-b border-b-gray_200"> {/* 제목부분 모두 합친 div*/}
           <div className="flex justify-between"> {/* 제목과 케밥 아이콘을 배치하기 위한 div*/}
-            <h1 className="text-gray_800 font-bold text-[20px] leading-[32px]">{article.title}</h1>
+            <h1 className="text-gray_800 font-bold text-[20px] leading-[32px]">{article?.title}</h1>
             <div className="ml-2 relative">
               <Image
                 src="/assets/ic_kebab.png" // ✅ ic_kebab 아이콘 추가
@@ -298,8 +266,8 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                 alt="Profile Image Icon"
                 width={40}
                 height={40}
-              />{article.nickname}
-              <div className="text-gray_400 font-normal text-[14px] leading-[24px] flex items-center justify-center">{formatDate(article.createdAt)}</div>
+              />{article?.nickname}
+              <div className="text-gray_400 font-normal text-[14px] leading-[24px] flex items-center justify-center">{formatDate(article?.createdAt ?? 'default date')}</div>
             </div>
             <div className="flex items-center justify-center rounded-[35px] border border-gray_200 px-[12px] py-[4px]">
               <p className="text-gray_500 font-medium text-[16px] leading-[26px] flex items-center justify-center gap-[10px]">
@@ -309,11 +277,11 @@ export default function ArticleDetail({ article, comments }: ArticleDetailProps)
                   width={32}
                   height={32}
                 />
-                {article.Heart}</p>
+                {article?.Heart}</p>
             </div>
           </div>
         </div>
-        <div className="text-gray_800 font-normal text-[18px] leading-[26px]">{article.content}</div>
+        <div className="text-gray_800 font-normal text-[18px] leading-[26px]">{article?.content}</div>
         {/* <div>첨부이미지</div>
         <img src={getImageUrl(article.image)} alt={article.title} className="h-[150px] w-[150px] rounded-md mt-4" /> */}
 

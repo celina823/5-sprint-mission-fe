@@ -1,44 +1,26 @@
-//검색목록 ssr로 구현
-import { useEffect, useState, useRef } from "react";
+// 검색목록 SSR 구현
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import CustomDropdown from "@/global/components/CustomDropdown";
 
-
-// SSR 방식으로 서버에서 데이터를 가져옵니다.
+// SSR 방식으로 서버에서 데이터를 가져옴
 export const getServerSideProps = async () => {
-
   try {
-    // 페이지네이션을 위한 기본값
-    const page = 1;
-    const limit = 4;
-    // API 호출해서 데이터 가져오기
     const res = await fetch('https://five-sprint-mission-be-mission7-kqwz.onrender.com/article');
     const data = await res.json();
-    // data에서 articles 배열만 추출
     const articles = Array.isArray(data.articles) ? data.articles : [];
-    const totalArticles = data.totalArticles;
-    const totalPages = data.totalPages;
 
     // 좋아요(Heart) 순으로 정렬 후 상위 3개 추출
-    const topArticles = [...articles]
-      .sort((a, b) => b.Heart - a.Heart) // 내림차순 정렬 (많은 순)
-      .slice(0, 3); // 상위 3개만 추출
-
-    // 서버에서 날짜를 포맷팅하여 전달
-    const formattedArticles = articles.map((article: Article) => ({
-      ...article,
-      createdAt: new Date(article.createdAt).toISOString(), // 서버에서 날짜를 ISO 문자열로 변환
-    }));
+    const topArticles = [...articles].sort((a, b) => b.Heart - a.Heart).slice(0, 3);
 
     return {
       props: {
-        articles: formattedArticles,
+        articles,
         topArticles,
-        totalArticles,
-        totalPages,
-      }
+        totalPages: data.totalPages ?? 1,
+      },
     };
   } catch (error) {
     console.error("Error fetching articles:", error);
@@ -46,12 +28,11 @@ export const getServerSideProps = async () => {
       props: {
         articles: [],
         topArticles: [],
-        totalArticles: 0,
-        totalPages: 0,
-      }
+        totalPages: 1,
+      },
     };
   }
-}
+};
 
 interface Article {
   id: string;
@@ -63,92 +44,58 @@ interface Article {
 }
 
 interface FreeboardProps {
-  articles: Article[]; //그냥 게시글
-  topArticles: Article[]; //베스트 게시글
-  totalArticles: number;
+  articles: Article[];
+  topArticles: Article[];
   totalPages: number;
 }
 
-export default function Freeboard({ articles, topArticles, totalArticles, totalPages: initialTotalPages, }: FreeboardProps) {
-  if (!Array.isArray(articles)) {
-    return <div>데이터 오류: 게시글을 가져오는 데 문제가 발생했습니다.</div>;
-  }
-
+export default function Freeboard({ articles, topArticles, totalPages: initialTotalPages }: FreeboardProps) {
   const router = useRouter();
-
-  const [isClient, setIsClient] = useState(false);  // Client-side rendering check
-  const [sortType, setSortType] = useState<"latest" | "heart">("latest"); // 드롭다운 설정 - 최신 순, 좋아요 순
-  const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태 
+  const [sortType, setSortType] = useState<"latest" | "heart">("latest");
+  const [searchQuery, setSearchQuery] = useState("");
   const [visibleTopArticles, setVisibleTopArticles] = useState<Article[]>([]);
-
-  // 페이지네이션 구현하는 데 필요
-  const [fetchedArticles, setFetchedArticles] = useState<Article[]>(articles); // SSR에서 가져온 데이터
-  // const [limit, setLimit] = useState(4); // 기본값은 데스크탑(4)
+  const [fetchedArticles, setFetchedArticles] = useState<Article[]>(articles);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [totalPages, setTotalPagesState] = useState(initialTotalPages); // 초기 totalPages를 서버에서 받은 값으로 설정
+  const [totalPages, setTotalPagesState] = useState(initialTotalPages);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    setIsClient(true); // 클라이언트 렌더링 시작
-  }, []);
-
-  // 화면 너비에 따른 베스트 게시글 수 조정
+  // 베스트 게시글 개수 조정
   useEffect(() => {
     const handleResize = () => {
-      // 화면의 너비에 맞춰 보여줄 데이터의 수를 결정
-      let articlesToShow = 3; // 기본적으로 3개 (PC)
-      if (window.innerWidth < 768) {
-        articlesToShow = 1; // 모바일에서는 1개
-      } else if (window.innerWidth < 1024) {
-        articlesToShow = 2; // 태블릿에서는 2개
-      }
+      let articlesToShow = 3;
+      if (window.innerWidth < 768) articlesToShow = 1;
+      else if (window.innerWidth < 1024) articlesToShow = 2;
 
-      // topArticles에서 필요한 수만큼 추출
       setVisibleTopArticles(topArticles.slice(0, articlesToShow));
     };
 
-    // 처음에 화면 크기 조정
     handleResize();
-    // 화면 크기 변경시마다 실행
     window.addEventListener("resize", handleResize);
-    // cleanup
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, [topArticles]);
 
-  const filteredArticles = fetchedArticles.filter((article) =>
+  const filteredArticles = fetchedArticles.filter(article =>
     article.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // 중복 제거 및 정렬
-  const sortedArticles = Array.from(
-    new Map(filteredArticles.map((article) => [article.id, article])).values()
-  ).sort((a, b) => {
-    if (sortType === "latest") {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    } else {
-      return b.Heart - a.Heart;
-    }
-  });
+  const sortedArticles = [...filteredArticles].sort((a, b) =>
+    sortType === "latest"
+      ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      : b.Heart - a.Heart
+  );
 
-  // 날짜 표기방식 변경
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ko-KR", {
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("ko-KR", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    }).replace(/. /g, '.').slice(0, -1); // "2025.02.25" 형식으로 변환
-  };
+    }).replace(/. /g, '.').slice(0, -1);
 
+  const getImageUrl = (image: string | null) => image?.trim() ? image : "/assets/img_default.png";
 
-  // 이미지 URL이 없을 경우 기본 이미지 설정
-  const getImageUrl = (image: string | null) => {
-    return image && image.trim() !== "" ? image : '/assets/img_default.png';
-  }
-
-  const loadMoreArticles = async () => {
+  // `useCallback`으로 loadMoreArticles를 최적화
+  const loadMoreArticles = useCallback(async () => {
     if (page < totalPages && !loading) {
       setLoading(true);
       const nextPage = page + 1;
@@ -156,13 +103,10 @@ export default function Freeboard({ articles, topArticles, totalArticles, totalP
         const res = await fetch(`https://five-sprint-mission-be-mission7-kqwz.onrender.com/article?page=${nextPage}`);
         const data = await res.json();
 
-        if (data && data.articles) {
-          setFetchedArticles((prev) => [
-            ...prev,
-            ...data.articles.filter((newArticle: Article) =>
-              !prev.some((article) => article.id === newArticle.id)
-            ),
-          ]);
+        if (data?.articles) {
+          setFetchedArticles(prev =>
+            [...prev, ...data.articles.filter((newArticle: Article) => !prev.some(article => article.id === newArticle.id))]
+          );
           setPage(nextPage);
           setTotalPagesState(data.totalPages);
         }
@@ -172,34 +116,26 @@ export default function Freeboard({ articles, topArticles, totalArticles, totalP
         setLoading(false);
       }
     }
-  };
+  }, [page, totalPages, loading]);
 
-  // 스크롤 이벤트 처리
+  // 스크롤 감지
   useEffect(() => {
     const handleScroll = () => {
-      if (scrollContainerRef.current) {
-        const bottom = scrollContainerRef.current.scrollHeight === scrollContainerRef.current.scrollTop + scrollContainerRef.current.clientHeight;
-        if (bottom) {
-          loadMoreArticles();
-        }
+      const scrollContainer = scrollContainerRef.current;
+      if (scrollContainer) {
+        const isBottom = scrollContainer.scrollHeight === scrollContainer.scrollTop + scrollContainer.clientHeight;
+        if (isBottom) loadMoreArticles();
       }
     };
 
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.addEventListener("scroll", handleScroll);
-    }
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) scrollContainer.addEventListener("scroll", handleScroll);
 
     return () => {
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.removeEventListener("scroll", handleScroll);
-      }
+      if (scrollContainer) scrollContainer.removeEventListener("scroll", handleScroll);
     };
-  }, [page, loading, totalPages]);
+  }, [page, totalPages, loading, loadMoreArticles]);
 
-
-  if (!isClient) {
-    return null; // Prevent SSR mismatch on the first render
-  }
 
   if (!fetchedArticles || fetchedArticles.length === 0) {
     return <div>로딩 중...</div>;
@@ -225,10 +161,12 @@ export default function Freeboard({ articles, topArticles, totalArticles, totalP
                   <p className="text-gray_800 font-semibold text-[20px] leading-[32px] w-[calc(100%-120px)] line-clamp-2">
                     {article.title}
                   </p> {/* 제목 (최대 2줄 표시, 초과 시 "..." 처리) */}
-                  <img
+                  <Image
                     src={getImageUrl(article.image)}
                     alt={article.title}
-                    className="h-[72px] w-[72px] rounded-[8px] border border-gray_200 mt-2"
+                    className="rounded-[8px] border border-gray_200 mt-2"
+                    width={72}
+                    height={72}
                   />
                 </div>
                 <div className="flex items-center justify-between items-center mt-[18px] text-sm text-gray-500">
@@ -280,7 +218,12 @@ export default function Freeboard({ articles, topArticles, totalArticles, totalP
             <div className="bg-[#fcfcfc] border-b border-gray_200 mb-[24px]">
               <div className="flex justify-between items-start"> {/*게시글 제목과 이미지를 배치하기 위한 div*/}
                 <p className="text-gray_800 font-semibold text-[20px] leading-[32px]">{article.title}</p>
-                <img src={getImageUrl(article.image)} alt={article.title} className="h-[72px] w-[72px] rounded-[8px] border border-gray_100" />
+                <Image
+                  src={getImageUrl(article.image)}
+                  alt={article.title}
+                  className="rounded-[8px] border border-gray_100"
+                  width={72}
+                  height={72} />
               </div>
               <div className="flex justify-between items-center mt-[16px] mb-[24px]"> {/*게시글 닉네임,작성일, 좋아요를 배치하기 위한 div*/}
                 <div className="flex space-x-2">
