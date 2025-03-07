@@ -1,0 +1,1 @@
+import { productsDetail } from "@/services/products";

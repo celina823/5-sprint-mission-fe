@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../services/auth";
-import { SignModal } from "@/components/signModal";
+import { SignModal } from "@/global/components/signModal";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -15,6 +15,14 @@ export default function Login() {
   const [modalMessage, setModalMessage] = useState<string>("");
 
   const router = useRouter();
+
+  // ✅ 로그인 상태 체크 (로그인 되어 있으면 /items로 이동)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.replace("/items"); // replace를 사용하여 뒤로가기 시 로그인 페이지가 나오지 않도록 처리
+    }
+  }, []);
 
   const isDisabled = !(email.trim() && password.trim()); // 이메일, 비밀번호 둘 다 입력시 활성화
 
@@ -46,6 +54,7 @@ export default function Login() {
       setError("비밀번호를 8자 이상 입력해주세요.");
       return;
     }
+    console.log("로그인 계정 확인:", { email, password });
     mutation.mutate({ email, password }); // 로그인 요청 실행
   };
 
