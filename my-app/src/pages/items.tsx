@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { products } from "@/services/products"
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 interface Product {
   id: number;
@@ -14,6 +15,7 @@ const Items = () => {
   const [productList, setProductList] = useState<Product[]>([]); // 상품 목록 상태
   const [loading, setLoading] = useState<boolean>(true);  // 로딩 상태
   const [error, setError] = useState<string | null>(null); // 오류 상태
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -38,6 +40,10 @@ const Items = () => {
     return image; // 유효한 이미지 URL인 경우 원본 이미지 사용
   };
 
+  const handleViewDetail = (id: number) => {
+    router.push(`/items/${id}`);
+  };
+
   if (loading) return <div>Loading...</div>;  // 로딩 중 표시
   if (error) return <div>{error}</div>;      // 오류 메시지 표시
 
@@ -56,7 +62,7 @@ const Items = () => {
             <h2>{product.name}</h2>
             <p>{product.description}</p>
             <p>가격: {product.price.toLocaleString()} 원</p>
-            <button onClick={() => console.log(`Go to product ${product.id}`)}>
+            <button onClick={() => handleViewDetail(product.id)}>
               상세보기
             </button>
           </div>

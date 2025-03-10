@@ -12,7 +12,7 @@ export const products = async () => {
     });
     return response;
   } catch (error) {
-    console.error("Error fetching product details:", error);
+    console.error("Error fetching products:", error);
     throw error;
   }
 };
@@ -33,3 +33,38 @@ export const productsDetail = async (productId: string) => {
     throw error;
   }
 };
+
+//좋아요 기능
+export const productFavorite = async (productId: string) => {
+  try {
+    const token = localStorage.getItem("authToken");  // Check token
+
+    console.log("Sending Favorite Request with Token:", token);
+    const response = await apiClient(`/products/${productId}/favorite`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    return response;
+  } catch (error) {
+    console.error("Error fetching favorite:", error);
+    throw error;
+  }
+}
+
+//좋아요 취소 기능
+export const productFavoriteNone = async (productId: string) => {
+  try {
+    const response = await apiClient(`/products/${productId}/favorite`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    return response;
+  } catch (error) {
+    console.error("Error fetching favorite:", error);
+    throw error;
+  }
+}

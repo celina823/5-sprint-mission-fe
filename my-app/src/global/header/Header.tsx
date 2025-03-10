@@ -66,8 +66,8 @@ export default function Header() {
             자유게시판
           </Link>
           <Link
-            href="/market"
-            className={`text-lg ${isActive("/market")} hover:text-primary-100 font-bold text-[18px] leading-[21.48px] flex items-center justify-center whitespace-nowrap`}
+            href="/items"
+            className={`text-lg ${isActive("/items")} hover:text-primary-100 font-bold text-[18px] leading-[21.48px] flex items-center justify-center whitespace-nowrap`}
           >
             중고마켓
           </Link>
