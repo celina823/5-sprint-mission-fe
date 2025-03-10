@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { products } from "@/services/products"
+import Image from "next/image";
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  images: string;
+}
 
 const Items = () => {
-  const [productList, setProductList] = useState<any[]>([]); // 상품 목록 상태
+  const [productList, setProductList] = useState<Product[]>([]); // 상품 목록 상태
   const [loading, setLoading] = useState<boolean>(true);  // 로딩 상태
   const [error, setError] = useState<string | null>(null); // 오류 상태
 
@@ -11,7 +20,7 @@ const Items = () => {
       try {
         const data = await products();  // 상품 목록 가져오기
         setProductList(data.list);      // 상품 목록 설정
-      } catch (err) {
+      } catch {
         setError("상품 목록을 불러오는 데 실패했습니다."); // 오류 처리
       } finally {
         setLoading(false);  // 로딩 완료
@@ -38,10 +47,11 @@ const Items = () => {
       <div className="product-list">
         {productList.map((product) => (
           <div key={product.id} className="product-item">
-            <img
+            <Image
               src={getImageUrl(product.images[0])}  // 첫 번째 이미지 사용
               alt={product.name}
-              style={{ width: "200px", height: "auto" }}
+              width={220}
+              height={220}
             />
             <h2>{product.name}</h2>
             <p>{product.description}</p>

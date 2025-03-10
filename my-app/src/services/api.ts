@@ -1,16 +1,21 @@
-// api.ts
 import axios from 'axios';
 
 const API_BASE_URL = "https://panda-market-api.vercel.app";
 
+interface ApiOptions {
+  method?: "GET" | "POST" | "PUT" | "DELETE";
+  headers?: Record<string, string>;
+  body?: unknown;
+}
+
 // apiClient 함수 수정
-export const apiClient = async (endpoint: string, options: any = {}) => {
+export const apiClient = async (endpoint: string, options: ApiOptions = {}) => {
   try {
     // 로컬 스토리지에서 인증 토큰 가져오기
     const token = localStorage.getItem("authToken");
 
     // 기본 헤더 설정
-    const headers = {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...options.headers,  // 기존 헤더가 있을 경우 이를 유지
     };

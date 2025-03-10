@@ -25,7 +25,7 @@ const Signup = () => {
     if (token) {
       router.replace("/items"); // replace를 사용하여 뒤로가기 시 로그인 페이지가 나오지 않도록 처리
     }
-  }, []);
+  }, [router]);
 
   const mutation = useMutation({
     mutationFn: () => signup(email, nickname, password, passwordConfirmation),

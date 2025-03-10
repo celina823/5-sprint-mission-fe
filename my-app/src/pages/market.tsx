@@ -1,4 +1,4 @@
-import { products } from "@/services/products"
+// import { products } from "@/services/products"
 
 export default function Freeboard() {
   return (

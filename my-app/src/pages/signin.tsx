@@ -22,7 +22,7 @@ export default function Login() {
     if (token) {
       router.replace("/items"); // replace를 사용하여 뒤로가기 시 로그인 페이지가 나오지 않도록 처리
     }
-  }, []);
+  }, [router]);
 
   const isDisabled = !(email.trim() && password.trim()); // 이메일, 비밀번호 둘 다 입력시 활성화
 
