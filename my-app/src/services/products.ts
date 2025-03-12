@@ -113,10 +113,10 @@ export const productFavoriteNone = async (productId: string) => {
   }
 }
 
-//댓글 기능
+//댓글 조회 기능
 export const productCommentsGet = async (productId: string): Promise<ProductComment[]> => {
   try {
-    const response = await apiClient(`/products/${productId}/comments?limit=3`, {
+    const response = await apiClient(`/products/${productId}/comments?limit=10`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -126,6 +126,77 @@ export const productCommentsGet = async (productId: string): Promise<ProductComm
     return response as ProductComment[];
   } catch (error) {
     console.error("Error fetching product details:", error);
+    throw error;
+  }
+};
+
+// 댓글 등록 기능
+export const productCommentsPost = async (productId: string, content: string) => {
+  try {
+    const token = localStorage.getItem("authToken"); // 토큰 가져오기
+
+    if (!token) {
+      throw new Error("로그인이 필요합니다.");
+    }
+
+    const response = await apiClient(`/products/${productId}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // 인증 토큰 추가
+      },
+      body: JSON.stringify({ content }),
+    });
+    console.log("댓글 등록 응답:", response); // ✅ 서버 응답을 확인
+    return response;
+  } catch (error) {
+    console.error("Error posting comment:", error);
+    throw error;
+  }
+};
+
+// 댓글 수정 기능
+export const productCommentsPatch = async (commentId: number, content: string) => {
+  try {
+    const token = localStorage.getItem("authToken"); // 토큰 가져오기
+
+    if (!token) {
+      throw new Error("로그인이 필요합니다.");
+    }
+
+    const response = await apiClient(`/comments/${commentId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content }),
+    });
+    return response;
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    throw error;
+  }
+};
+
+// 댓글 삭제 기능
+export const productCommentsDelete = async (commentId: number) => {
+  try {
+    const token = localStorage.getItem("authToken"); // 토큰 가져오기
+
+    if (!token) {
+      throw new Error("로그인이 필요합니다.");
+    }
+
+    await apiClient(`/comments/${commentId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
     throw error;
   }
 };

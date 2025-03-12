@@ -59,7 +59,6 @@ const Items = () => {
 
   if (loading) return <div>Loading...</div>;  // 로딩 중 표시
   if (error) return <div>{error}</div>;      // 오류 메시지 표시
-
   console.log("데이터확인용", productList)
   return (
     <div>

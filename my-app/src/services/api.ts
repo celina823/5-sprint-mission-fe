@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_BASE_URL = "https://panda-market-api.vercel.app";
 
 interface ApiOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
   headers?: Record<string, string>;
   body?: unknown;
 }
@@ -32,7 +32,7 @@ export const apiClient = async (endpoint: string, options: ApiOptions = {}) => {
       headers: headers,
       data: options.body,
     });
-
+    console.log("API 응답:", response.data); // ✅ 응답 데이터 출력
     return response.data;  // 응답 데이터 반환
   } catch (error) {
     // 오류 처리
