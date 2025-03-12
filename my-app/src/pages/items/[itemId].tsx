@@ -1,7 +1,13 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { productsDetail, productFavorite, productFavoriteNone } from "@/services/products";
+import { productsDetail, productFavorite, productFavoriteNone, productCommentsGet } from "@/services/products";
 import Image from "next/image";
+
+interface Writer {
+  id: number;
+  nickname: string;
+  image: string;
+}
 
 interface Product {
   createdAt: string;
@@ -17,11 +23,20 @@ interface Product {
   isFavorite: boolean;
 }
 
+interface ProductComment {
+  id: number;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  writer: Writer;
+}
+
 const ItemDetail = () => {
 
   const router = useRouter();
   const { itemId } = router.query; // Get itemId from the URL
   const [product, setProduct] = useState<Product | null>(null); // State to store product data
+  const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState<boolean>(true); // Loading state
   const [error, setError] = useState<string | null>(null); // Error state
 
@@ -30,7 +45,7 @@ const ItemDetail = () => {
     console.log(localStorage.getItem("authToken"));
     const fetchProduct = async () => {
       try {
-        const data = await productsDetail(itemId as string); // Fetch product data using productsDetail
+        const data: Product = await productsDetail(itemId as string); // Fetch product data using productsDetail
         setProduct(data); // Set product data
       } catch (error) {
         console.log(error);
@@ -41,6 +56,21 @@ const ItemDetail = () => {
     };
 
     fetchProduct();
+  }, [itemId]);
+
+  useEffect(() => {
+    if (!itemId) return;
+
+    const fetchComments = async () => {
+      try {
+        const data: ProductComment[] = await productCommentsGet(itemId as string);
+        setComments(data);
+      } catch (error) {
+        console.error("댓글을 불러오는 데 실패했습니다.", error);
+      }
+    };
+
+    fetchComments();
   }, [itemId]);
 
   const handleFavorite = async () => {
@@ -79,69 +109,82 @@ const ItemDetail = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const storedToken = localStorage.getItem("authToken");
-  //     console.log("Token on useEffect:", storedToken);
-  //     setToken(storedToken);
-  //   }
-  // }, []);
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!product) return <div>상품을 찾을 수 없습니다.</div>;
   return (
-    <div>
-      <h1>{product.name}</h1>
+    <>
       <div>
-        <strong>가격: </strong>{product.price.toLocaleString()} 원
-      </div>
-      <div>
-        <strong>작성일: </strong>{new Date(product.createdAt).toLocaleDateString()}
-      </div>
-      <div>
-        <strong>작성자: </strong>{product.ownerNickname}
-      </div>
-      <div>
-        <strong>즐겨찾기 수: </strong>{product.favoriteCount}
-      </div>
-
-      <div>
-        <strong>설명: </strong>
-        <p>{product.description}</p>
-      </div>
-
-      <div>
-        <strong>태그: </strong>
-        <ul>
-          {product.tags.map((tag, index) => (
-            <li key={index}>{tag}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <strong>이미지:</strong>
-        <div className="image-gallery">
-          {product.images.map((image, index) => (
-            <Image
-              key={index}
-              src={image}
-              alt={product.name}
-              width={300}
-              height={200}
-              layout="intrinsic" // ✅ 최적화된 이미지 로딩 방식 적용
-            />
-          ))}
+        {/* 게시글 */}
+        <h1>{product.name}</h1>
+        <div>
+          <strong>가격: </strong>{product.price.toLocaleString()} 원
         </div>
+        <div>
+          <strong>작성일: </strong>{new Date(product.createdAt).toLocaleDateString()}
+        </div>
+        <div>
+          <strong>작성자: </strong>{product.ownerNickname}
+        </div>
+        <div>
+          <strong>즐겨찾기 수: </strong>{product.favoriteCount}
+        </div>
+
+        <div>
+          <strong>설명: </strong>
+          <p>{product.description}</p>
+        </div>
+
+        <div>
+          <strong>태그: </strong>
+          <ul>
+            {product.tags.map((tag, index) => (
+              <li key={index}>{tag}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <strong>이미지:</strong>
+          <div className="image-gallery">
+            {product.images.map((image, index) => (
+              <Image
+                key={index}
+                src={image}
+                alt={product.name}
+                width={300}
+                height={200}
+                layout="intrinsic" // ✅ 최적화된 이미지 로딩 방식 적용
+              />
+            ))}
+          </div>
+        </div>
+        <div>
+          <strong>즐겨찾기 수: </strong>{product.favoriteCount}
+        </div>
+        <button onClick={handleFavorite}>
+          {product.isFavorite ? "좋아요 취소" : "좋아요"}
+        </button>
       </div>
+      {/* 댓글 목록 */}
       <div>
-        <strong>즐겨찾기 수: </strong>{product.favoriteCount}
+        <h2>댓글</h2>
+        {comments.length > 0 ? (
+          <ul>
+            {comments.map((comment) => (
+              <li key={comment.id}>
+                <strong>{comment.writer.nickname}</strong>: {comment.content}{" "}
+                <span style={{ fontSize: "0.8rem", color: "gray" }}>
+                  ({new Date(comment.createdAt).toLocaleDateString()})
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>댓글이 없습니다.</p>
+        )}
       </div>
-      <button onClick={handleFavorite}>
-        {product.isFavorite ? "좋아요 취소" : "좋아요"}
-      </button>
-    </div>
+    </>
   );
 };
 

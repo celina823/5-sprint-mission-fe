@@ -14,7 +14,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <QueryClientProvider client={queryClient}>
         {!hiddenPaths.includes(router.pathname) && <Header />}
-        <Component {...pageProps} />
+        <div className="pt-[70px] "> {/* 헤더 높이만큼 여백 추가 */}
+          <Component {...pageProps} />
+        </div>
         {!hiddenPaths.includes(router.pathname) && <Footer />}
       </QueryClientProvider>
     </>

@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/router"; // useRouter 훅 사용
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { fetchUserData } from "@/services/user";
 
 export default function Header() {
-  const router = useRouter(); // useRouter 훅 사용
-  const [user, setUser] = useState<{ image: string; nickname: string } | null>(null); // 로그인 상태 체크
+  const router = useRouter();
+  const [user, setUser] = useState<{ image: string; nickname: string } | null>(null);
 
   // ✅ 로그인된 경우 유저 정보 가져오기
   useEffect(() => {
@@ -25,19 +25,26 @@ export default function Header() {
           }
         })
         .catch((error) => {
-          console.error("API Error:", error); // Log any error from fetchUserData
-          setUser(null); // Optionally clear user data if the request fails
+          console.error("API Error:", error);
+          setUser(null); // Clear the user if fetching data fails
         });
     } else {
       console.error("토큰이 없습니다.");
-      setUser(null); // Optionally clear user data if token is missing
+      setUser(null); // Clear the user state if token is not found
     }
   }, []);
 
   // ✅ 로그아웃 기능
   const handleLogout = () => {
+    // Remove token from localStorage
     localStorage.removeItem("token");
+
+    // Clear the user state
     setUser(null);
+
+    // Optionally reset any other relevant states, such as likes, cart, etc.
+
+    // Redirect user to signin page
     router.push("/signin");
   };
 
@@ -50,10 +57,10 @@ export default function Header() {
       <div className="flex items-center space-x-[32px]">
         <Link href="/" className="flex items-center">
           <Image
-            src="/assets/Group 19.png" // public 폴더 내의 이미지 경로
+            src="/assets/Group 19.png"
             alt="MyLogo"
-            width={153} // 로고 크기
-            height={51} // 로고 크기
+            width={153}
+            height={51}
           />
         </Link>
 
@@ -73,10 +80,10 @@ export default function Header() {
           </Link>
         </nav>
       </div>
+
       {/* 로그인 버튼 */}
       {user ? (
         <div className="flex items-center space-x-4">
-          {/* 프로필 이미지 & 닉네임 */}
           <Image src={user.image} alt="Profile" width={40} height={40} className="rounded-full" />
           <span className="text-gray-800 font-bold">{user.nickname}</span>
           <button
