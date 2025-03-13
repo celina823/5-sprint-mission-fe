@@ -307,7 +307,15 @@ const ItemDetail = () => {
           ))}
         </ul>
       ) : (
-        <p>아직 댓글이 없습니다.</p>
+        <div>
+          <Image
+            src="/assets/Img_inquiry_empty.png"
+            alt="no comment"
+            width={140}
+            height={140}
+          />
+          <p>아직 댓글이 없습니다.</p>
+        </div>
       )}
 
       {showDeleteModal.show && (

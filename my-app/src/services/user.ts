@@ -7,7 +7,7 @@ interface DecodedToken {
 
 const refreshToken = async () => {
   try {
-    const response = await apiClient("/auth/refresh", { method: "POST" });
+    const response = await apiClient("/auth/refresh-token", { method: "POST" });
     if (response && response.token) {
       localStorage.setItem("token", response.token);
       return response.token;
