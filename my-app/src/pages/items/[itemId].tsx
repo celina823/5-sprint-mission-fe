@@ -10,6 +10,7 @@ import {
   productCommentsDelete,
 } from "@/services/products";
 import Image from "next/image";
+import Link from "next/link";
 import { EditDropdownMenu } from "@/global/components/EditDropdownMenu";
 
 interface Writer {
@@ -219,113 +220,156 @@ const ItemDetail = () => {
   console.log("comments 길이:", comments?.length);
 
   return (
-    <>
-      {/* 게시글 */}
-      <h1>{product.name}</h1>
-      <div>
-        <strong>가격: </strong>{product.price.toLocaleString()} 원
-      </div>
-      <div>
-        <strong>작성일: </strong>{new Date(product.createdAt).toLocaleDateString()}
-      </div>
-      <div>
-        <strong>작성자: </strong>{product.ownerNickname}
-      </div>
-      <div>
-        <strong>즐겨찾기 수: </strong>{product.favoriteCount}
-      </div>
-
-      <div>
-        <strong>설명: </strong>
-        <p>{product.description}</p>
-      </div>
-
-      <div>
-        <strong>태그: </strong>
-        <ul>
-          {product.tags.map((tag, index) => (
-            <li key={index}>{tag}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div>
-        <strong>이미지:</strong>
-        <div className="image-gallery">
+    <div className="flex flex-col items-center">
+      <div className="w-[343px] sm:w-[343px] md:w-[696px] lg:w-[1200px] mt-[24px] mb-[324px] sm:mb-[324px] md:mb-[503px] lg:mb-[443px]">
+        {/* 게시글 */}
+        <div className="flex justify-between pb-[24px] sm:pb-[24px] md:pb-[32px] lg:pb-[40px] border-b border-gray-200">
           {product.images.map((image, index) => (
             <Image
               key={index}
               src={getImageUrl(image)}
               alt={product.name}
-              width={300}
-              height={200}
-              layout="intrinsic" // ✅ 최적화된 이미지 로딩 방식 적용
+              width={486}
+              height={486}
+              className="w-[343px] h-[343px] sm:w-[340px] sm:h-[340px] md:w-[340px] md:h-[340px] lg:w-[486px] lg:h-[486px] rounded-[8px]"
             />
           ))}
-        </div>
-      </div>
-      <button onClick={handleFavorite}>{product.isFavorite ? "좋아요 취소" : "좋아요"}</button>
-
-      <h2>댓글</h2>
-      <div>
-        <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="댓글 입력" />
-        <button onClick={handleAddComment}>등록</button>
-      </div>
-
-      {comments.length > 0 ? (
-        <ul>
-          {comments.map((comment) => (
-            <li key={comment.id}>
-              {editingComment?.id === comment.id ? (
-                <div>
-                  <input
-                    type="text"
-                    value={editingComment.content}
-                    onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
-                  />
-                  <button onClick={handleEditComment}>수정 완료</button>
+          <div className="flex flex-col w-[344px] sm:w-[344px] md:w-[340px] lg:w-[690px]">
+            <div className="flex flex-col gap-[10px] border-b border-gray-200"> {/* 게시글 제목과 가격을 배치하는 div */}
+              <div className="text-gray-800 text-[24px] font-semibold leading-[32px] ">{product.name}</div>
+              <div className="text-gray-800 text-[40px] font-semibold leading-[100%] mb-[16px]">
+                {product.price.toLocaleString()} 원
+              </div>
+            </div>
+            <div className="flex flex-col gap-[24px] mt-[16px] sm:mt-[16px] md:mt-[16px] lg:mt-[24px]">{/* 상품 소개와 상품 태그를 배치하는 div */}
+              <div>
+                <div className="font-semibold text-[16px] leading-[26px] text-gray-600 mb-[8px] sm:mb-[8px] md:mb-[8px] lg:mb-[16px]">상품소개</div>
+                <p className="font-normal text-[16px] leading-[26px] text-gray-600">{product.description}</p>
+              </div>
+              <div>
+                <div className="font-semibold text-[16px] leading-[26px] text-gray-600 mb-[8px] sm:mb-[8px] md:mb-[8px] lg:mb-[16px]">상품 태그</div>
+                <ul className="flex gap-[8px]">
+                  {product.tags.map((tag, index) => (
+                    <li key={index} className="h-[36px] rounded-[26px] px-[16px] py-[6px] bg-gray-100 font-normal text-[16px] leading-[26px] text-gray-800">#{tag}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            {/* 게시글 작성정보 */}
+            <div className="flex justify-between items-center mt-auto">
+              <div className="flex justify-between items-center gap-[16px]">
+                <Image
+                  src="/assets/ic_profile.png"
+                  alt="profile image"
+                  width={40}
+                  height={40}
+                  className="w-[40px] h-[40px] object-cover rounded-full"
+                />
+                <div className="flex flex-col">
+                  <div className="font-medium text-[14px] leading-[24px] text-gray-600">
+                    {product.ownerNickname}
+                  </div>
+                  <div className="font-normal text-[14px] leading-[24px] text-gray-400">
+                    {new Date(product.createdAt).toLocaleDateString()}
+                  </div>
                 </div>
-              ) : (
-                <div>
-                  <p>{comment.content}</p>
-                  <span>{comment.writer.nickname}</span>
-                  <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                  <EditDropdownMenu
-                    commentId={comment.id}
-                    onEdit={() => {
-                      console.log("수정 클릭됨");
-                      setEditingComment({ id: comment.id, content: comment.content });
-                    }}
-                    onDelete={() => {
-                      console.log("삭제 클릭됨");
-                      handleDeleteClick(comment.id);
-                    }}
-                  />
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div>
-          <Image
-            src="/assets/Img_inquiry_empty.png"
-            alt="no comment"
-            width={140}
-            height={140}
-          />
-          <p>아직 댓글이 없습니다.</p>
+              </div>
+              <button onClick={handleFavorite} className="flex items-center justify-center whitespace-nowrap h-[32px] sm:h-[32px] md:h-[32px] lg:h-[40px] rounded-[35px] px-[12px] py-[4px] gap-[10px] border border-gray-200 ">
+                <Image
+                  src={product.isFavorite ? "/assets/ic_heart.png" : "/assets/ic_noneheart.png"}
+                  alt="좋아요"
+                  width={32}
+                  height={32}
+                />
+                {product.favoriteCount}
+              </button>
+            </div>
+          </div>
         </div>
-      )}
-
-      {showDeleteModal.show && (
-        <div className="modal">
-          <p>정말로 삭제하시겠습니까?</p>
-          <button onClick={handleDeleteComment}>삭제</button>
-          <button onClick={() => setShowDeleteModal({ show: false, commentId: null })}>취소</button>
+        {/* 댓글 입력*/}
+        <div className="font-semibold text-[16px] leading-[26px] text-gray-900 mt-[24px] sm:mt-[24px] md:mt-[40px] lg:mt-[40px]">문의하기</div>
+        <div className="flex flex-col items-end ">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            className="mt-[9px] mb-[16px] bg-gray-100 w-full h-[129px] sm:h-[129px] md:h-[104px] lg:h-[104px] rounded-[12px] px-[24px] py-[16px] text-medium text-[14px] leading-[26px] placeholder-gray-400 "
+            placeholder="개인정보를 공유 및 요청하거나, 명예 훼손, 무단 광고, 불법 정보 유포시 모니터링 후 삭제될 수 있으며, 이에 대한 민형사상 책임은 게시자에게 있습니다." />
+          <button onClick={handleAddComment} className="bg-gray-400 h-[42px] rounded-[8px] px-[23px] py-[12px] font-semibold text-[16px] leading-[26px] text-gray-100 flex items-center justify-center whitespace-nowrap">등록</button>
         </div>
-      )}
-    </>
+        {/* 댓글 목록 */}
+        {comments.length > 0 ? (
+          <ul className="mt-[40px] sm:mt-[40px] md:mt-[40px] lg:mt-[24px]">
+            {comments.map((comment) => (
+              <li key={comment.id}>
+                {editingComment?.id === comment.id ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={editingComment.content}
+                      onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
+                    />
+                    <button onClick={handleEditComment}>수정 완료</button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-[24px] pb-[12px] mb-[16px] sm:mb-[16px] md:mb-[24px] lg:mb-[24px] border-b border-gray-200">
+                    <div className="flex justify-between">
+                      <p>{comment.content}</p>
+                      <EditDropdownMenu
+                        commentId={comment.id}
+                        onEdit={() => {
+                          console.log("수정 클릭됨");
+                          setEditingComment({ id: comment.id, content: comment.content });
+                        }}
+                        onDelete={() => {
+                          console.log("삭제 클릭됨");
+                          handleDeleteClick(comment.id);
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <span>{comment.writer.nickname}</span>
+                      <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center mt-[40px] sm:mt-[40px] md:mt-[40px] lg:mt-[24px] mb-[48px]">
+            <Image
+              src="/assets/Img_inquiry_empty.png"
+              alt="no comment"
+              width={196}
+              height={196}
+              className="w-[140px] sm:w-[140px] md:w-[140px] lg:w-[196px] h-[140px] sm:h-[140px] md:h-[140px] lg:h-[196px]"
+            />
+            <p className="font-normal text-[16px] leading-[26px] text-gray-400">아직 문의가 없어요</p>
+          </div>
+        )}
+        <div className="flex justify-center">
+          <Link href="/items">
+            <button className="flex justify-center items-center gap-[8px] w-[240px] h-[48px] rounded-[40px] px-[64px] py-[12px] bg-primary-100 whitespace-nowrap
+          font-semibold text-[18px] leading-[26px] text-gray-100">
+              목록으로 돌아가기
+              <Image
+                src="/assets/ic_back.png"
+                alt="back"
+                width={24}
+                height={24}
+              />
+            </button>
+          </Link>
+        </div>
+        {showDeleteModal.show && (
+          <div className="modal">
+            <p>정말로 삭제하시겠습니까?</p>
+            <button onClick={handleDeleteComment}>삭제</button>
+            <button onClick={() => setShowDeleteModal({ show: false, commentId: null })}>취소</button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
