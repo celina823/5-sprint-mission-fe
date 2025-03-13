@@ -28,6 +28,11 @@ interface ProductComment {
   writer: Writer;
 }
 
+interface ProductCommentResponse {
+  list: ProductComment[];
+  nextCursor: number | null;
+}
+
 // 상품목록 요청 함수
 export const products = async ({
   page = 2,
@@ -114,7 +119,7 @@ export const productFavoriteNone = async (productId: string) => {
 }
 
 //댓글 조회 기능
-export const productCommentsGet = async (productId: string): Promise<ProductComment[]> => {
+export const productCommentsGet = async (productId: string): Promise<ProductCommentResponse> => {
   try {
     const response = await apiClient(`/products/${productId}/comments?limit=10`, {
       method: "GET",
@@ -123,7 +128,7 @@ export const productCommentsGet = async (productId: string): Promise<ProductComm
         // 필요한 경우 인증 토큰 추가 (예: Authorization)
       },
     });
-    return response as ProductComment[];
+    return response as ProductCommentResponse;
   } catch (error) {
     console.error("Error fetching product details:", error);
     throw error;

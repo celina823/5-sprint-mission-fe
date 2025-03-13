@@ -89,7 +89,7 @@ const ItemDetail = () => {
       try {
         const data: ProductCommentResponse = await productCommentsGet(itemId as string);
         setComments(data.list);  // Use '목록' instead of 'list'
-        console.log("상세페이지 API 응답-댓글확인용:", data.list); // Log the comments list
+        console.log("상세페이지 API 응답-댓글확인용:", data); // Log the comments list
       } catch (error) {
         console.error("댓글을 불러오는 데 실패했습니다.", error);
       }
