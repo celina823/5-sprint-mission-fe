@@ -3,7 +3,7 @@ import { products } from "@/services/products"
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { ProductPagination } from "@/global/components/productPagination";
-
+import { getImageUrl } from "@/global/components/GetImageUrl";
 interface Product {
   id: number;
   name: string;
@@ -39,14 +39,6 @@ const Items = () => {
 
     fetchProducts();
   }, [page, pageSize, keyword]); // 페이지, 검색어 변경 시 API 호출
-
-  // 이미지 깨지는거 처리
-  const getImageUrl = (image: string | null | undefined) => {
-    if (!image || image.trim() === "" || image.startsWith("https://example.com")) {
-      return "/assets/img_default.png"; // 기본 이미지 경로
-    }
-    return image; // 유효한 이미지 URL인 경우 원본 이미지 사용
-  };
 
   const handleSearch = (event: React.FormEvent) => {
     event.preventDefault();

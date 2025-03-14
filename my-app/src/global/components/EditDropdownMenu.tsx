@@ -26,9 +26,11 @@ export const EditDropdownMenu: React.FC<EditDropdownMenuProps> = ({ commentId, o
       />
 
       {showDropdown && (
-        <div className="dropdown-menu">
-          <button onClick={() => onEdit(commentId)}>수정</button>
-          <button onClick={() => onDelete(commentId)}>삭제</button>
+        <div className="w-[102px] sm:w-[102px] md:w-[102px] lg:w-[139px] flex flex-col border border-gray-300 rounded-[8px]">
+          <button onClick={() => onEdit(commentId)}
+            className="font-normal text-[16px] leading-[26px] text-gray-500 border-b border-gray-300 py-[8px]">수정하기</button>
+          <button onClick={() => onDelete(commentId)}
+            className="font-normal text-[16px] leading-[26px]  text-gray-500 py-[8px]">삭제하기</button>
         </div>
       )}
     </div>

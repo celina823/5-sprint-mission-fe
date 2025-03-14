@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { EditDropdownMenu } from "@/global/components/EditDropdownMenu";
+import { getImageUrl, getProfileImgUrl } from "@/global/components/GetImageUrl";
 
 interface Writer {
   id: number;
@@ -142,6 +143,11 @@ const ItemDetail = () => {
     }
   };
 
+  // 댓글 수정 취소
+  const cancelEditingComment = () => {
+    setEditingComment(null);
+  }
+
 
   // 삭제 버튼 클릭 시 모달 열기
   const handleDeleteClick = (commentId: number) => {
@@ -203,14 +209,6 @@ const ItemDetail = () => {
     }
   };
 
-  // 이미지 깨지는거 처리
-  const getImageUrl = (image: string | null | undefined) => {
-    if (!image || image.trim() === "" || image.startsWith("https://example.com")) {
-      return "/assets/img_default.png"; // 기본 이미지 경로
-    }
-    return image; // 유효한 이미지 URL인 경우 원본 이미지 사용
-  };
-
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!product) return <div>상품을 찾을 수 없습니다.</div>;
@@ -263,7 +261,7 @@ const ItemDetail = () => {
                   alt="profile image"
                   width={40}
                   height={40}
-                  className="w-[40px] h-[40px] object-cover rounded-full"
+                  className="w-[40px] h-[40px] "
                 />
                 <div className="flex flex-col">
                   <div className="font-medium text-[14px] leading-[24px] text-gray-600">
@@ -307,13 +305,25 @@ const ItemDetail = () => {
                       type="text"
                       value={editingComment.content}
                       onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
+                      className="bg-gray-100 w-full h-[80px] rounded-[12px] px-[24px] py-[16px] mb-[16px]"
                     />
-                    <button onClick={handleEditComment}>수정 완료</button>
+                    <div className="flex justify-end gap-[4px]">
+                      <button
+                        onClick={cancelEditingComment}
+                        className="flex items-center px-[23px] py-[12px] font-semibold text-[16px] leading-[26px] text-gray-500"
+                      >
+                        취소
+                      </button>
+                      <button onClick={handleEditComment}
+                        className="flex items-center bg-primary-100 h-[42px] rounded-[8px] px-[23px] py-[12px]
+                    font-semibold text-[16px] leading-[26px] text-gray-100">수정 완료
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-[24px] pb-[12px] mb-[16px] sm:mb-[16px] md:mb-[24px] lg:mb-[24px] border-b border-gray-200">
                     <div className="flex justify-between">
-                      <p>{comment.content}</p>
+                      <p className="font-normal text-[14px] leading-[24px] text-gray-800">{comment.content}</p>
                       <EditDropdownMenu
                         commentId={comment.id}
                         onEdit={() => {
@@ -326,9 +336,17 @@ const ItemDetail = () => {
                         }}
                       />
                     </div>
-                    <div>
-                      <span>{comment.writer.nickname}</span>
-                      <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-[8px]">
+                      <Image
+                        src={getProfileImgUrl(comment.writer.image)}
+                        alt="writer profile image"
+                        width={32}
+                        height={32}
+                        className="w-[32px] h-[32px]" />
+                      <div className="flex flex-col">
+                        <span className="font-normal text-[12px] leading-[18px] text-gray-600">{comment.writer.nickname}</span>
+                        <span className="font-normal text-[12px] leading-[18px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -350,7 +368,7 @@ const ItemDetail = () => {
         <div className="flex justify-center">
           <Link href="/items">
             <button className="flex justify-center items-center gap-[8px] w-[240px] h-[48px] rounded-[40px] px-[64px] py-[12px] bg-primary-100 whitespace-nowrap
-          font-semibold text-[18px] leading-[26px] text-gray-100">
+          font-semibold text-[18px] leading-[26px] text-gray-100 mt-[40px] sm:mt-[40px] md:mt-[56px] lg:mt-[64px]">
               목록으로 돌아가기
               <Image
                 src="/assets/ic_back.png"
