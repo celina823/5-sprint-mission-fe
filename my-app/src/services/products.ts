@@ -86,7 +86,7 @@ export const productsDetail = async (productId: string) => {
 //좋아요 기능
 export const productFavorite = async (productId: string) => {
   try {
-    const token = localStorage.getItem("authToken");  // Check token
+    const token = localStorage.getItem("authToken"); // Check token
 
     console.log("Sending Favorite Request with Token:", token);
     const response = await apiClient(`/products/${productId}/favorite`, {
@@ -94,13 +94,13 @@ export const productFavorite = async (productId: string) => {
       headers: {
         "Content-Type": "application/json",
       },
-    })
+    });
     return response as { success: boolean };
   } catch (error) {
     console.error("Error fetching favorite:", error);
     throw error;
   }
-}
+};
 
 //좋아요 취소 기능
 export const productFavoriteNone = async (productId: string) => {
@@ -110,24 +110,52 @@ export const productFavoriteNone = async (productId: string) => {
       headers: {
         "Content-Type": "application/json",
       },
-    })
+    });
     return response as { success: boolean };
   } catch (error) {
     console.error("Error fetching favorite:", error);
     throw error;
   }
-}
+};
 
-//댓글 조회 기능
-export const productCommentsGet = async (productId: string): Promise<ProductCommentResponse> => {
+//판매글 삭제 기능
+export const productDelete = async (productId: number) => {
   try {
-    const response = await apiClient(`/products/${productId}/comments?limit=10`, {
-      method: "GET",
+    const token = localStorage.getItem("authToken"); // 토큰 가져오기
+
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    await apiClient(`/products/${productId}`, {
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        // 필요한 경우 인증 토큰 추가 (예: Authorization)
+        Authorization: `Bearer ${token}`,
       },
     });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw error;
+  }
+};
+
+//댓글 조회 기능
+export const productCommentsGet = async (
+  productId: string
+): Promise<ProductCommentResponse> => {
+  try {
+    const response = await apiClient(
+      `/products/${productId}/comments?limit=10`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // 필요한 경우 인증 토큰 추가 (예: Authorization)
+        },
+      }
+    );
     return response as ProductCommentResponse;
   } catch (error) {
     console.error("Error fetching product details:", error);
@@ -136,12 +164,16 @@ export const productCommentsGet = async (productId: string): Promise<ProductComm
 };
 
 // 댓글 등록 기능
-export const productCommentsPost = async (productId: string, content: string) => {
+export const productCommentsPost = async (
+  productId: string,
+  content: string
+) => {
   try {
     const token = localStorage.getItem("authToken"); // 토큰 가져오기
 
     if (!token) {
-      throw new Error("로그인이 필요합니다.");
+      alert("로그인이 필요합니다.");
+      return;
     }
 
     const response = await apiClient(`/products/${productId}/comments`, {
@@ -161,12 +193,16 @@ export const productCommentsPost = async (productId: string, content: string) =>
 };
 
 // 댓글 수정 기능
-export const productCommentsPatch = async (commentId: number, content: string) => {
+export const productCommentsPatch = async (
+  commentId: number,
+  content: string
+) => {
   try {
     const token = localStorage.getItem("authToken"); // 토큰 가져오기
 
     if (!token) {
-      throw new Error("로그인이 필요합니다.");
+      alert("로그인이 필요합니다.");
+      return;
     }
 
     const response = await apiClient(`/comments/${commentId}`, {
@@ -190,7 +226,8 @@ export const productCommentsDelete = async (commentId: number) => {
     const token = localStorage.getItem("authToken"); // 토큰 가져오기
 
     if (!token) {
-      throw new Error("로그인이 필요합니다.");
+      alert("로그인이 필요합니다.");
+      return;
     }
 
     await apiClient(`/comments/${commentId}`, {
