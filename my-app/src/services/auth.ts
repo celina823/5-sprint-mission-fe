@@ -6,7 +6,7 @@ export const login = async (email: string, password: string) => {
     const response = await apiClient("/auth/signIn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: { email, password },
     });
 
     if (response?.accessToken) {
@@ -15,7 +15,7 @@ export const login = async (email: string, password: string) => {
     } else {
       console.error("로그인 응답에 accessToken이 없음:", response);
     }
-
+    console.log("로그인 응답 데이터:", response.data); // 응답 데이터 확인
     return response;
   } catch (error) {
     console.error("로그인 실패:", error);

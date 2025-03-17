@@ -10,7 +10,7 @@ export default function Header() {
 
   // ✅ 로그인된 경우 유저 정보 가져오기
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authToken");
 
     if (token) {
       fetchUserData(token)
@@ -22,6 +22,7 @@ export default function Header() {
             });
           } else {
             console.error("User data not found");
+            setUser(null);
           }
         })
         .catch((error) => {
@@ -32,6 +33,25 @@ export default function Header() {
       console.error("토큰이 없습니다.");
       setUser(null); // Clear the user state if token is not found
     }
+  }, []);
+  // localStorage가 변경되었을 때 자동으로 Header가 업데이트
+  useEffect(() => {
+    const fetchUser = () => {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        fetchUserData(token)
+          .then((data) => setUser(data ? { image: data.image || "/assets/ic_profile.png", nickname: data.nickname } : null))
+          .catch(() => setUser(null));
+      } else {
+        setUser(null);
+      }
+    };
+
+    fetchUser(); // 초기 실행
+
+    window.addEventListener("storage", fetchUser); // storage 변경 감지
+    return () => window.removeEventListener("storage", fetchUser);
   }, []);
 
   // ✅ 로그아웃 기능

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../services/auth";
 import { SignModal } from "@/global/components/signModal";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -15,6 +16,8 @@ export default function Login() {
   const [modalMessage, setModalMessage] = useState<string>("");
 
   const router = useRouter();
+
+  const { login: storeLogin } = useAuthStore();
 
   // ✅ 로그인 상태 체크 (로그인 되어 있으면 /items로 이동)
   useEffect(() => {
@@ -30,7 +33,17 @@ export default function Login() {
   const mutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) => login(email, password),
     onSuccess: (data) => {
-      localStorage.setItem("token", data.accessToken);
+      console.log("✅ 로그인 응답 데이터:", data);
+      const { accessToken, refreshToken, user } = data;
+
+      if (!accessToken) {
+        console.error("❌ accessToken이 없습니다. 로그인 실패!");
+        setModalMessage("로그인에 실패했습니다. 다시 시도해주세요.");
+        setShowModal(true);
+        return;
+      }
+
+      storeLogin(accessToken, refreshToken, user);
       alert("로그인 성공!");
       router.push("/items");
     },

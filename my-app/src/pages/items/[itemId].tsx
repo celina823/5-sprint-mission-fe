@@ -81,6 +81,7 @@ const ItemDetail = () => {
         setProduct(data); // Set product data
       } catch (error) {
         console.log(error);
+        alert("로그인이 필요합니다.");
         setError("상품 정보를 불러오는 데 실패했습니다."); // Set error message
       } finally {
         setLoading(false); // Set loading to false after fetch

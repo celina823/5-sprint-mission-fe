@@ -20,13 +20,19 @@ const refreshToken = async () => {
 
 export const fetchUserData = async (token: string | null) => {
   if (!token) {
-    console.error("Token is missing");
+    console.error("토큰이 없습니다.");
     return null;
   }
 
   try {
+    // 🔹 토큰 형식이 유효한지 검사
+    if (token.split(".").length !== 3) {
+      console.error("유효하지 않은 JWT 토큰:", token);
+      return null;
+    }
     const decoded: DecodedToken = jwtDecode(token);
     const currentTime = Math.floor(Date.now() / 1000);
+    console.log("디코딩된 토큰:", decoded);
 
     if (decoded.exp < currentTime) {
       console.warn("Token expired, attempting refresh...");
