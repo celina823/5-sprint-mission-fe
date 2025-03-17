@@ -54,7 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ token: response.accessToken });
         return response.accessToken;
       }
-    } catch (error) {
+    } catch {
       console.error("🚨 토큰 갱신 실패.");
     }
     return null; // ✅ 로그아웃 실행하지 않고 null 반환
