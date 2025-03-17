@@ -142,10 +142,10 @@ export default function Login() {
           <p className="text-gray_800">간편 로그인하기</p>
           <div className="flex justify-center items-center gap-4">
             <Link href="https://www.google.com/" target="_blank">
-              <Image src="/assets/Component 2@3x.png" alt="Google Login" width={42} height={42} />
+              <Image src="/assets/ic_google.png" alt="Google Login" width={42} height={42} />
             </Link>
             <Link href="https://www.kakaocorp.com/page/" target="_blank">
-              <Image src="/assets/Component 3@3x.png" alt="Kakao Login" width={42} height={42} />
+              <Image src="/assets/ic_kakao.png" alt="Kakao Login" width={42} height={42} />
             </Link>
           </div>
         </div>
